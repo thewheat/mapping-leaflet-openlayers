@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Leaflet Quick Start Guide Example</title>
+	<meta charset="utf-8" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<link rel="stylesheet" href="leaflet.css" />
+</head>
+<body>
+	<h3>Leaflet</h3>
+	<div id="mapid" style="width: 600px; height: 400px"></div>
+	<div id="click"></div>
+	<script src="leaflet.js"></script>
+	<script src="jquery.min.js"></script>
+	<script>
+
+		///////////////////////////////////////////////////////
+		// Initialize a map view port and zoom level
+		var mymap = L.map('mapid').setView([4.5353,114.7277], 9);
+
+
+		///////////////////////////////////////////////////////
+		// Specify tile base layer i.e. the actual maps
+
+		L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpandmbXliNDBjZWd2M2x6bDk3c2ZtOTkifQ._QA7i5Mpkd_m30IGElHziw', {
+			maxZoom: 18,
+			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+				'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+			id: 'mapbox.streets'
+		}).addTo(mymap);
+
+		// base layer for map
+		// var wmsLayer = L.tileLayer.wms('http://demo.opengeo.org/geoserver/ows?', {
+		//     layers: 'ne:ne'
+		// }).addTo(mymap);
+		// http://leafletjs.com/examples/wms/wms.html
+
+
+		///////////////////////////////////////////////////////
+		// Markers
+
+		var marker = L.marker([4.6353,114.7277]).addTo(mymap);
+
+		// Custom Icon
+		var customIcon = L.icon({
+		    iconUrl: 'images/layers.png',
+		    iconSize:     [38, 95], // size of the icon
+		    shadowSize:   [50, 64], // size of the shadow
+		    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+		    shadowAnchor: [4, 62],  // the same for the shadow
+		    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+		});
+		var markerCustom = L.marker([4.7353,114.4277], {icon: customIcon}).addTo(mymap);
+		
+
+		///////////////////////////////////////////////////////
+		// Polygons
+
+		var circle = L.circle([4.4353,114.6277], 5000, {
+		    color: 'red',
+		    fillColor: '#f03',
+		    fillOpacity: 0.5
+		}).addTo(mymap);
+
+		var polygon = L.polygon([
+		    [4.4353,115.0277],
+		    [4.0353,114.4277],
+		    [4.2353,115.2277]
+		]).addTo(mymap);
+
+		///////////////////////////////////////////////////////
+		// Popup info boxes
+
+		marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
+		circle.bindPopup("I am a circle.");
+		polygon.bindPopup("I am a polygon.");
+
+
+
+		///////////////////////////////////////////////////////
+		// map click events
+
+		function onMapClick(e) {
+		    document.getElementById("click").innerHTML = "You clicked the map at " + e.latlng;
+		}
+
+		mymap.on('click', onMapClick);
+
+
+
+
+		///////////////////////////////////////////////////////
+		// GeoJSON
+
+		var geoJson = [{
+		    "type": "Polygon",
+		    "coordinates": [[[114.29077,4.55024],[114.43359,4.39964],[114.45007,4.5612]]]
+		}, {
+		    "type": "LineString",
+		    "coordinates": [[114.34021,4.30105],[114.51324,4.37226]]
+		}];
+
+		var myStyle = {
+		    "color": "#ff7800",
+		    "weight": 5,
+		    "opacity": 0.65
+		};
+
+		L.geoJson(geoJson, {
+		    style: myStyle
+		}).addTo(mymap);
+
+		// remote source
+		$.ajax({url:"bus.geojson", dataType: "json"}).done(function(data){
+			console.log(data.features[0].geometry);
+	    	L.geoJson([data.features[0].geometry]).addTo(mymap);
+		})
+
+
+
+		///////////////////////////////////////////////////////
+		// layers
+
+		var points = new L.LayerGroup();
+		L.marker([4.52834, 114.12323]).bindPopup('Point 1').addTo(points);
+		L.marker([4.36404, 114.03809]).bindPopup('Point 2').addTo(points);
+		L.marker([4.47632, 114.16168]).bindPopup('Point 3').addTo(points);
+
+
+
+	    var mbAttr = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+				'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+			mbUrl = 'https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpandmbXliNDBjZWd2M2x6bDk3c2ZtOTkifQ._QA7i5Mpkd_m30IGElHziw';
+
+
+	   	var grayscale   = L.tileLayer(mbUrl, {id: 'mapbox.light', attribution: mbAttr});
+	    var streets  = L.tileLayer(mbUrl, {id: 'mapbox.streets',   attribution: mbAttr});
+		var baseLayers = {
+			"Grayscale": grayscale,
+			"Streets": streets
+		};
+		baseLayers = baseLayers || {};
+		var overlays = {
+			"Points": points
+		};
+		L.control.layers(baseLayers, overlays).addTo(mymap);
+
+
+
+	</script>
+
+
+
+    <h3>Links</h3>
+    <ul>
+		<li><a href="http://leafletjs.com/examples/quick-start.html">http://leafletjs.com/examples/quick-start.html</a></li>
+		<li><a href="http://leafletjs.com/examples.html">http://leafletjs.com/examples.html</a></li>
+		<li><a href="http://maptimeboston.github.io/leaflet-intro/">http://maptimeboston.github.io/leaflet-intro/</a></li>
+    </ul>	
+</body>
+</html>
